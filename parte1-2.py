@@ -181,7 +181,7 @@ def initialization(n):
 
     return initialPopulation
 
-def main():
+def main(totalConvergence, nExecutions = 10000):
     # number of inidviduals
     n = 100
     # number of genes in each individual
@@ -196,21 +196,25 @@ def main():
     individuals = initialization(n)
     # surround the following function call in a while loop which breaks once a solution is found
     gen = 0
-    while(gen < 10000):
+    while(gen < nExecutions):
         #print("Generation: " + str(gen) + "\n")
         [new_gen, fit] = find_solution(n, individuals, pc, pm)
         allGenerationsFitness = np.concatenate((allGenerationsFitness, fit), axis=None)
         if 28 in fit:
-            # print(fit)
             counter = fit.count(28)
-            print("ok")
-            return [gen, mean(allGenerationsFitness), counter] 
+            if totalConvergence: 
+                if counter == 100:
+                    print("Number of Generations to reach total convergence: ", gen+1)
+                    return [gen, mean(allGenerationsFitness), counter] 
+            else:
+                print("Number of Generations to reach individual convergence: ", gen+1)
+                return [gen, mean(allGenerationsFitness), counter] 
         individuals = new_gen
         gen = gen + 1
  
     return [gen, mean(allGenerationsFitness), 0] # quantas gerações rodou, a média de fitness de todas as gerações, quantos indivíduos convergiram
 
-def evaluateExecutions(allGen, allFitness, counter):
+def evaluateExecutions(allGen, allFitness, counter, execTime):
     meanGen = np.average(allGen)
     stdGen = np.std(allGen)
     # print(allGen)
@@ -218,35 +222,49 @@ def evaluateExecutions(allGen, allFitness, counter):
     stdFitness = np.std(allFitness)
     nConvergence = sum(counter)
     meanConvergence = np.average(counter)
-    return [meanGen, stdGen, nConvergence, meanFitness, stdFitness, meanConvergence]
+    meanExecTime = np.average(execTime)
+    return [meanGen, stdGen, nConvergence, meanFitness, stdFitness, meanConvergence, meanExecTime]
 
 def getTime(startTime):
     execTime = round(time.time() - startTime, 3)
     if execTime > 60:
-        print("Execution Time : ", execTime/60, " minutes")
+        print("Tempo de execução: ", round(execTime/60, 3), " minutos")
     else:
-        print("Execution Time : ", execTime, " seconds")
+        print("Tempo de execução: ", execTime, " segundos")
+    return execTime
 
+def printEvaluation(meanGen, stdGen, nConvergence, meanFitness, stdFitness, meanConvergence, meanExecTime):
+    print("Em que iteração o algoritmo convergiu, em média: ", round(meanGen, 3))
+    print("Desvio Padrão de em quantas iterações o algoritmo convergiu: ", round(stdGen, 3))
+    print("Fitness médio alcançado nas 30 execuções : ", round(meanFitness, 3))
+    print("Desvio padrão dos Fitness alcançados nas 30 execuções: ", round(stdFitness, 3))
+    print("Em quantas execuções o algoritmo convergiu: ", str(min(nConvergence, 30)) + "/30")
+    print("Número de indivíduos que convergiram: ", nConvergence)
+    print("Número de indivíduos que convergiram por execução, em média: ", round(meanConvergence, 3))
+    print("Tempo médio de execução das 30 execuções: ", round(meanExecTime, 3), " segundos")
 
 if __name__ == '__main__':
     startTime = time.time()
     allFitness = []
     allGen = []
     counter = []
+    execTime = []
     for i in range(30):
-        print("Execução",i)
-        execution = main()
-        allGen.append(execution[0])
-        allFitness.append(execution[1])
-        counter.append(execution[2])
+        print("Execução", i)
+        stTime = round(time.time(), 3)
+        iteration = main(totalConvergence = False)
+        allGen.append(iteration[0])
+        allFitness.append(iteration[1])
+        counter.append(iteration[2])
+        execTime.append(getTime(stTime))
 
     
-    [meanGen, stdGen, nConvergence, meanFitness, stdFitness, meanConvergence] = evaluateExecutions(allGen, allFitness, counter)
+    [meanGen, stdGen, nConvergence, meanFitness, stdFitness, meanConvergence, meanExecTime] = evaluateExecutions(allGen, allFitness, counter, execTime)
     print("Parte 1:")
-    print("meanGen: ", meanGen)
-    print("stdGen: ", stdGen)
-    print("meanFitness: ", meanFitness)
-    print("stdFitness: ", stdFitness)
-    print("nConvergence:", nConvergence)
-    print("meanConvergence: ", meanConvergence)
+    printEvaluation(meanGen, stdGen, nConvergence, meanFitness, stdFitness, meanConvergence, meanExecTime)
+    getTime(startTime)
+    # - Análise adicional: Quantas iterações são necessárias para toda a população convergir?
+    print("Quantas iterações são necessárias para toda a população convergir?")
+    iteration = main(totalConvergence = True, nExecutions  = 70000)
+    print(iteration[1])
     getTime(startTime)
