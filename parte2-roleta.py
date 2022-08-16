@@ -4,34 +4,12 @@ from statistics import mean
 import numpy as np
 import pandas as pd
 from itertools import permutations 
-#import itertools 
 import sys
 import random
 import decimal
 import time
 
-# def converte(individuals1,individuals2):
-#     for chromo in individuals2:
-#         i=0
-#         while i<8:
-#             print(chromo[i])
-#         i=i+1
-#     return True
-
 def fitness(individuals):
-    """
-	returns 28 - <number of conflicts>
-	to test for conflicts, we check for 
-	 -> row conflicts
-	 -> columnar conflicts
-	 -> diagonal conflicts
-	 
-	The ideal case can yield upton 28 arrangements of non attacking pairs.
-	for iteration 0 -> there are 7 non attacking queens
-	for iteration 1 -> there are 6 no attacking queens ..... and so on 
-	Therefore max fitness = 7 + 6+ 5+4 +3 +2 +1 = 28
-	hence fitness val returned will be 28 - <number of clashes>
-	"""
     totalFitness = []# o fitness de cada chromossomo
     for chromosome in individuals:
         clashes = 0
@@ -53,9 +31,6 @@ def fitness(individuals):
             i+=1
         chromoFit = 28 - clashes 
         totalFitness.append(chromoFit)
-        
-        # if chromoFit == 28:
-        #     sys.exit("Solução:" + str(chromosome) + " -> Fit: " + str(chromoFit))
             
     return totalFitness # retorna o vetor com as devidas porcentagens de fitness
 
@@ -286,9 +261,9 @@ if __name__ == '__main__':
     print("Parte 1 - Roleta:")
     printEvaluation(meanGen, stdGen, nConvergence, meanFitness, stdFitness, meanConvergence, meanExecTime)
     getTime(startTime)
-    # - Análise adicional: Quantas iterações são necessárias para toda a população convergir?
-    print("Quantas iterações são necessárias para toda a população convergir?")
-    execution = main(totalConvergence = True, nExecutions  = 70000)
-    print(execution[1])
-    getTime(startTime)
+#     # - Análise adicional: Quantas iterações são necessárias para toda a população convergir?
+#     print("Quantas iterações são necessárias para toda a população convergir?")
+#     execution = main(totalConvergence = True, nExecutions  = 70000)
+#     print(execution[1])
+#     getTime(startTime)
     
